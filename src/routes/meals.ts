@@ -24,6 +24,11 @@ export async function mealsRoutes(app: FastifyInstance) {
       return { meals }
     }
   )
+
+  app.get('/:id', { preHandler: checkValidMealIdRequest }, async (request: CustomRequest, reply) => {
+    const { meal } = request
+    return { meal }
+  })
   app.post(
     '/',
     {
@@ -82,5 +87,13 @@ export async function mealsRoutes(app: FastifyInstance) {
       console.error(error)
       return reply.status(500).send('Internal Server Error')
     }
+  })
+  app.delete('/:id', { preHandler: checkValidMealIdRequest }, async (request: CustomRequest, reply) => {
+    const { meal } = request
+    if (!meal) {
+      return reply.status(404).send({ error: 'Meal not found' })
+    }
+    await knex('meals').where({ id: meal.id }).delete()
+    return reply.status(200).send('Meal deleted successfully')
   })
 }
