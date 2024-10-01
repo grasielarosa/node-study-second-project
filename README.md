@@ -15,9 +15,9 @@
 - [x] It must be possible to delete a meal
 - [x] It must be possible to list all meals of a user
 - [x] It must be possible to view a single meal
-- [ ] It must be possible to retrieve user metrics:
-  - [ ] Total number of meals registered
-  - [ ] Total number of meals within the diet
-  - [ ] Total number of meals outside the diet
-  - [ ] Best streak of meals within the diet
+- [x] It must be possible to retrieve user metrics:
+  - [x] Total number of meals registered
+  - [x] Total number of meals within the diet
+  - [x] Total number of meals outside the diet
+  - [x] Best streak of meals within the diet
 - [x] The user can only view, edit, and delete meals they have created

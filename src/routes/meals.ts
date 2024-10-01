@@ -64,6 +64,49 @@ export async function mealsRoutes(app: FastifyInstance) {
     }
   )
 
+  app.get('/metrics', { preHandler: [checkSessionIdExists] }, async (request, reply) => {
+    const sessionId = request.cookies.sessionId
+    if (!sessionId) {
+      return reply.status(401).send('Unauthorized: No session found')
+    }
+    const user = await knex('users').where({ session_id: sessionId }).first()
+    if (!user) {
+      return reply.status(401).send('Unauthorized: Invalid session')
+    }
+    const userId = user.id
+    const withinDiet = await knex('meals')
+      .where({ user_id: userId, isWithinDiet: true })
+      .count('id', { as: 'total' })
+      .first()
+    const outsideDiet = await knex('meals')
+      .where({ user_id: userId, isWithinDiet: false })
+      .count('id', { as: 'total' })
+      .first()
+    const total = await knex('meals').where({ user_id: userId }).orderBy('date', 'desc')
+
+    const { bestSequence } = total.reduce(
+      (acc, meal) => {
+        if (meal.isWithinDiet) {
+          acc.currentSequence += 1
+        } else {
+          acc.currentSequence = 0
+        }
+
+        if (acc.currentSequence > acc.bestSequence) {
+          acc.bestSequence = acc.currentSequence
+        }
+
+        return acc
+      },
+      { bestSequence: 0, currentSequence: 0 }
+    )
+    return {
+      withinDiet: withinDiet?.total,
+      outsideDiet: outsideDiet?.total,
+      total: total.length,
+      bestSequence: Number(bestSequence),
+    }
+  })
   app.put('/:id', { preHandler: checkValidMealIdRequest }, async (request: CustomRequest, reply) => {
     const { meal } = request
     const body = request.body as Partial<Meal>
