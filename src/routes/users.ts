@@ -3,7 +3,12 @@ import { knex } from '../database'
 import { createUserBodySchema } from '../@models/schemas'
 
 export async function usersRoutes(app: FastifyInstance) {
-  app.get('/', async () => {})
+  app.get('/', async () => {
+    const users = await knex('users').select()
+    return {
+      users,
+    }
+  })
 
   app.post('/', async (request, reply) => {
     const body = createUserBodySchema.safeParse(request.body)

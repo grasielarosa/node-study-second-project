@@ -11,7 +11,7 @@
   - Date and Time
   - Whether or not the meal is within the diet
 
-- [ ] It must be possible to edit a meal, allowing all the above data to be changed
+- [x] It must be possible to edit a meal, allowing all the above data to be changed
 - [ ] It must be possible to delete a meal
 - [ ] It must be possible to list all meals of a user
 - [ ] It must be possible to view a single meal

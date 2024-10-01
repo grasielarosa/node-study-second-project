@@ -1,7 +1,8 @@
 import { FastifyInstance } from 'fastify'
 import { createMealBodySchema } from '../@models/schemas'
 import { knex } from '../database'
-import { checkSessionIdExists } from '../middlewares'
+import { checkSessionIdExists, checkValidMealIdRequest } from '../middlewares'
+import { CustomRequest, Meal } from '../@models/types'
 
 export async function mealsRoutes(app: FastifyInstance) {
   app.get(
@@ -57,4 +58,29 @@ export async function mealsRoutes(app: FastifyInstance) {
       return reply.status(201).send()
     }
   )
+
+  app.put('/:id', { preHandler: checkValidMealIdRequest }, async (request: CustomRequest, reply) => {
+    const { meal } = request
+    const body = request.body as Partial<Meal>
+
+    if (!meal) {
+      return reply.status(404).send({ error: 'Meal not found' })
+    }
+
+    const { name, description, isWithinDiet, date, time } = createMealBodySchema.parse(body)
+    try {
+      await knex('meals').where({ id: meal.id }).update({
+        name,
+        description,
+        isWithinDiet,
+        date,
+        time,
+      })
+
+      return reply.status(200).send('Meal updated successfully')
+    } catch (error) {
+      console.error(error)
+      return reply.status(500).send('Internal Server Error')
+    }
+  })
 }
